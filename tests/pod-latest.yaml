@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prueba-latest
+  namespace: devsecops
+spec:
+  containers:
+    - name: notas
+      image: api-notas:latest

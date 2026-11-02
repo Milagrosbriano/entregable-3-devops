@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-notas-deployment
+  namespace: devsecops
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notas
+  template:
+    metadata:
+      labels:
+        app: notas
+    spec:
+      securityContext:
+        fsGroup: 10001
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: notas
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+        - name: notas
+          image: api-notas:devsecops-v3
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8000
+
+          envFrom:
+            - configMapRef:
+                name: api-notas-config-v1
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - name: notas-data
+              mountPath: /app/data
+            - name: temporales
+              mountPath: /tmp
+
+      volumes:
+        - name: notas-data
+          emptyDir: {}
+        - name: temporales
+          emptyDir: {}

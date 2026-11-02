@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prueba-valida
+  namespace: devsecops
+spec:
+  containers:
+    - name: notas
+      image: api-notas:devsecops-v3
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "500m"
+          memory: "256Mi"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
